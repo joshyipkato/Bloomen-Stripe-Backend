@@ -395,6 +395,13 @@ EMOJI_STORE = {
   "Standard" => 40000,
   "Romeo" => 70000,
   "Romeo XL" => 100000,
+  "Cotton and spray rose bouquet" => 74000,
+  "Red rose and eustoma bouquet" => 74000,
+  "Cream rose and spray rose bouquet" => 95000,
+  "Pink rose bouquet" => 87500,
+  "Purple rose and clematis bouquet" => 105000,
+  "Garden rose and ornithogalum bouquet" => 99000,
+  "Pink rose and clematis bouquet" => 116000
 }
 
 def price_lookup(product)
