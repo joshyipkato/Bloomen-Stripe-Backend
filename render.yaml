@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: example-terminal-backend
+    name: Bloomen-Stripe-Backend
     env: ruby
     region: oregon
     plan: free
