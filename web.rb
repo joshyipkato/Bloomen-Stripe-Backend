@@ -204,7 +204,6 @@ post '/create_payment_intent' do
       :amount => amount,
       :currency => currency_for_country(payload[:country]),
       :customer => payload[:customer_id] || @customer.id,
-      :description => "Example PaymentIntent",
       :description => "Bloomen App Payment Intent",
       :capture_method => ENV['CAPTURE_METHOD'] == "manual" ? "manual" : "automatic",
       payment_method_types: payment_methods_for_country(payload[:country]),
