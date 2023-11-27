@@ -227,7 +227,7 @@ post '/create_payment_intent' do
       :amount => amount,
       :currency => currency_for_country(payload[:country]),
       :customer => payload[:customer_id] || @customer.id,
-      :description => "Example PaymentIntent",
+      :description => "Bloomen App Payment Intent",
       :capture_method => ENV['CAPTURE_METHOD'] == "manual" ? "manual" : "automatic",
       payment_method_types: payment_methods_for_country(payload[:country]),
       
@@ -390,8 +390,8 @@ end
 
 # ===== Helpers
 
-# Our example apps sell emoji apparel; this hash lets us calculate the total amount to charge.
-EMOJI_STORE = {
+# This is flower store product hash; this hash lets us calculate the total amount to charge.
+flower_store = {
   "Standard" => 40000,
   "Romeo" => 70000,
   "Romeo XL" => 100000,
@@ -405,7 +405,7 @@ EMOJI_STORE = {
 }
 
 def price_lookup(product)
-  price = EMOJI_STORE[product]
+  price = flower_store[product]
   raise "Can't find price for %s (%s)" % [product, product.ord.to_s(16)] if price.nil?
   return price
 end
