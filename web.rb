@@ -282,7 +282,7 @@ post '/confirm_payment_intent' do
         :source => payload[:source],
         :payment_method => payload[:payment_method_id],
         :payment_method_types => payment_methods_for_country(payload[:country]),
-        :description => "Example PaymentIntent",
+        :description => payload[:products],
         :shipping => payload[:shipping],
         :return_url => payload[:return_url],
         :confirm => true,
@@ -292,7 +292,7 @@ post '/confirm_payment_intent' do
         :use_stripe_sdk => true, 
         :capture_method => ENV['CAPTURE_METHOD'] == "manual" ? "manual" : "automatic",
         :metadata => {
-          :order_id => '5278735C-1F40-407D-933A-286E463E72D8',
+          :order_id => payload[:payment_intent_id],
         }.merge(payload[:metadata] || {}),
       )
     else
