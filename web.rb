@@ -3,25 +3,19 @@ require 'stripe'
 require 'dotenv'
 require 'json'
 require 'encrypted_cookie'
-
 $stdout.sync = true # Get puts to show up in heroku logs
-
 Dotenv.load
 Stripe.api_key = ENV['STRIPE_TEST_SECRET_KEY']
-
 use Rack::Session::EncryptedCookie,
   :secret => 'replace_me_with_a_real_secret_key' # Actually use something secret here!
-
 def log_info(message)
   puts "\n" + message + "\n\n"
   return message
 end
-
 get '/' do
   status 200
   return log_info("Great, your backend is set up. Now you can configure the Stripe example apps to point here.")
 end
-
 post '/ephemeral_keys' do
   authenticate!
   
@@ -34,12 +28,10 @@ post '/ephemeral_keys' do
     status 402
     return log_info("Error creating ephemeral key: #{e.message}")
   end
-
   content_type :json
   status 200
   key.to_json
 end
-
 def authenticate!
   # This code simulates "loading the Stripe customer for your current session".
   # Your own logic will likely look very different.
@@ -57,7 +49,6 @@ def authenticate!
     else
       begin
     #    @customer = create_customer()
-
         if (Stripe.api_key.start_with?('sk_test_'))
           # only attach test cards in testmode
           attach_customer_test_cards()
@@ -69,17 +60,15 @@ def authenticate!
   end
   @customer
 end
-
-#def create_customer
-#  Stripe::Customer.create(
-#    :description => 'mobile SDK example customer',
-#    :metadata => {
-#      # Add our application's customer id for this Customer, so it'll be easier to look up
-#      :my_customer_id => '72F8C533-FCD5-47A6-A45B-3956CA8C792D',
-#    },
-#  )
-#end
-
+def create_customer
+  Stripe::Customer.create(
+    :description => 'mobile SDK example customer',
+    :metadata => {
+      # Add our application's customer id for this Customer, so it'll be easier to look up
+      :my_customer_id => '72F8C533-FCD5-47A6-A45B-3956CA8C792D',
+    },
+  )
+end
 def attach_customer_test_cards
   # Attach some test cards to the customer for testing convenience.
   # See https://stripe.com/docs/payments/3d-secure#three-ds-cards
@@ -94,7 +83,6 @@ def attach_customer_test_cards
         cvc: '123',
       },
     })
-
     Stripe::PaymentMethod.attach(
       payment_method.id,
       {
@@ -103,7 +91,6 @@ def attach_customer_test_cards
     )
   }
 end
-
 # This endpoint responds to webhooks sent by Stripe. To use it, you'll need
 # to add its URL (https://{your-app-name}.herokuapp.com/stripe-webhook)
 # in the webhook settings section of the Dashboard.
@@ -113,7 +100,6 @@ post '/stripe-webhook' do
   # Retrieving the event from Stripe guarantees its authenticity
   payload = request.body.read
   event = nil
-
   begin
       event = Stripe::Event.construct_from(
           JSON.parse(payload, symbolize_names: true)
@@ -123,7 +109,6 @@ post '/stripe-webhook' do
       status 400
       return
   end
-
   # Handle the event
   case event.type
   when 'source.chargeable'
@@ -171,10 +156,8 @@ post '/stripe-webhook' do
   end
   status 200
 end
-
 # ==== SetupIntent 
 # See https://stripe.com/docs/payments/cards/saving-cards-without-payment
-
 # This endpoint is used by the mobile example apps to create a SetupIntent.
 # https://stripe.com/docs/api/setup_intents/create
 # A real implementation would include controls to prevent misuse
@@ -196,7 +179,6 @@ post '/create_setup_intent' do
     status 402
     return log_info("Error creating SetupIntent: #{e.message}")
   end
-
   log_info("SetupIntent successfully created: #{setup_intent.id}")
   status 200
   return {
@@ -205,32 +187,28 @@ post '/create_setup_intent' do
     :status => setup_intent.status
   }.to_json
 end
-
 # ==== PaymentIntent Automatic Confirmation
 # See https://stripe.com/docs/payments/payment-intents/ios
-
 # This endpoint is used by the mobile example apps to create a PaymentIntent
 # https://stripe.com/docs/api/payment_intents/create
 # A real implementation would include controls to prevent misuse
 post '/create_payment_intent' do
   payload = params
-
   if request.content_type != nil and request.content_type.include? 'application/json' and params.empty?
       payload = Sinatra::IndifferentHash[JSON.parse(request.body.read)]
   end
-
   # Calculate how much to charge the customer
   amount = calculate_price(payload[:products], payload[:shipping])
-
   begin
     payment_intent = Stripe::PaymentIntent.create(
       :amount => amount,
       :currency => currency_for_country(payload[:country]),
       :customer => payload[:customer_id] || @customer.id,
+      :description => "Example PaymentIntent",
       :description => "Bloomen App Payment Intent",
       :capture_method => ENV['CAPTURE_METHOD'] == "manual" ? "manual" : "automatic",
       payment_method_types: payment_methods_for_country(payload[:country]),
-      
+
       # Sends receipt
       receipt_email: payload[:email_address],
       
@@ -242,7 +220,6 @@ post '/create_payment_intent' do
     status 402
     return log_info("Error creating PaymentIntent: #{e.message}")
   end
-
   log_info("PaymentIntent successfully created: #{payment_intent.id}")
   status 200
   return {
@@ -251,10 +228,8 @@ post '/create_payment_intent' do
     :status => payment_intent.status
   }.to_json
 end
-
 # ===== PaymentIntent Manual Confirmation 
 # See https://stripe.com/docs/payments/payment-intents/ios-manual
-
 # This endpoint is used by the mobile example apps to create and confirm a PaymentIntent 
 # using manual confirmation. 
 # https://stripe.com/docs/api/payment_intents/create
@@ -265,7 +240,6 @@ post '/confirm_payment_intent' do
   if request.content_type.include? 'application/json' and params.empty?
     payload = Sinatra::IndifferentHash[JSON.parse(request.body.read)]
   end
-
   begin
     if payload[:payment_intent_id]
       # Confirm the PaymentIntent
@@ -273,7 +247,6 @@ post '/confirm_payment_intent' do
     elsif payload[:payment_method_id]
       # Calculate how much to charge the customer
       amount = calculate_price(payload[:products], payload[:shipping])
-
       # Create and confirm the PaymentIntent
       payment_intent = Stripe::PaymentIntent.create(
         :amount => amount,
@@ -282,7 +255,7 @@ post '/confirm_payment_intent' do
         :source => payload[:source],
         :payment_method => payload[:payment_method_id],
         :payment_method_types => payment_methods_for_country(payload[:country]),
-        :description => "Bloomen Bouquets",
+        :description => "Example PaymentIntent",
         :shipping => payload[:shipping],
         :return_url => payload[:return_url],
         :confirm => true,
@@ -303,10 +276,8 @@ post '/confirm_payment_intent' do
     status 402
     return log_info("Error: #{e.message}")
   end
-
   return generate_payment_response(payment_intent)
 end
-
 def generate_payment_response(payment_intent)
   # Note that if your API version is before 2019-02-11, 'requires_action'
   # appears as 'requires_source_action'.
@@ -331,10 +302,8 @@ def generate_payment_response(payment_intent)
     return "Invalid PaymentIntent status"
   end
 end
-
 # ===== Custom Methods
 # Create new customer at login
-
 post '/create_new_customer' do
   payload = params
   if request.content_type != nil and request.content_type.include? 'application/json' and params.empty?
@@ -347,7 +316,6 @@ post '/create_new_customer' do
     })
     
     session[:customer_id] = @customer.id
-
         if (Stripe.api_key.start_with?('sk_test_'))
           # only attach test cards in testmode
           attach_customer_test_cards()
@@ -363,7 +331,6 @@ post '/create_new_customer' do
   status 200
   @customer.to_json
 end
-
 post '/authenticate_stripe_user' do
   
   payload = params
@@ -390,6 +357,8 @@ end
 
 # ===== Helpers
 
+# Our example apps sell emoji apparel; this hash lets us calculate the total amount to charge.
+EMOJI_STORE = {
 # This is flower store product hash; this hash lets us calculate the total amount to charge.
 flower_store = {
   "Standard" => 40000,
@@ -405,18 +374,16 @@ flower_store = {
 }
 
 def price_lookup(product)
+  price = EMOJI_STORE[product]
   price = flower_store[product]
   raise "Can't find price for %s (%s)" % [product, product.ord.to_s(16)] if price.nil?
   return price
 end
-
 def calculate_price(products, shipping)
   amount = 0  # Default amount.
-
   if products
     amount = products.reduce(0) { | sum, product | sum + price_lookup(product) }
   end
-
   if shipping
     case shipping
     when "fedex"
@@ -429,14 +396,11 @@ def calculate_price(products, shipping)
       amount = amount + 0
     end
   end
-
   return amount
 end
-
 def currency_for_country(country)
   # Determine currency to use. Generally a store would charge different prices for
   # different countries, but for the sake of simplicity we'll charge X of the local currency.
-
   case country
   when 'us'
     'hkd'
@@ -456,7 +420,6 @@ def currency_for_country(country)
     'hkd'
   end
 end
-
 def payment_methods_for_country(country)
   case country
   when 'us'
