@@ -356,8 +356,6 @@ end
 
 # ===== Helpers
 
-# Our example apps sell emoji apparel; this hash lets us calculate the total amount to charge.
-EMOJI_STORE = {
 # This is flower store product hash; this hash lets us calculate the total amount to charge.
 flower_store = {
   "Standard" => 40000,
@@ -373,7 +371,6 @@ flower_store = {
 }
 
 def price_lookup(product)
-  price = EMOJI_STORE[product]
   price = flower_store[product]
   raise "Can't find price for %s (%s)" % [product, product.ord.to_s(16)] if price.nil?
   return price
