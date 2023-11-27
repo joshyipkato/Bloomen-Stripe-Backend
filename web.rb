@@ -292,7 +292,7 @@ post '/confirm_payment_intent' do
         :use_stripe_sdk => true, 
         :capture_method => ENV['CAPTURE_METHOD'] == "manual" ? "manual" : "automatic",
         :metadata => {
-          :order_id => payload[:payment_intent_id],
+          :order_id => '5278735C-1F40-407D-933A-286E463E72D8',
         }.merge(payload[:metadata] || {}),
       )
     else
