@@ -390,7 +390,7 @@ end
 # ===== Helpers
 
 # This is flower store product hash; this hash lets us calculate the total amount to charge.
-flower_store = {
+EMOJI_STORE = {
   "Standard" => 40000,
   "Romeo" => 70000,
   "Romeo XL" => 100000,
@@ -404,7 +404,7 @@ flower_store = {
 }
 
 def price_lookup(product)
-  price = flower_store[product]
+  price = EMOJI_STORE[product]
   raise "Can't find price for %s (%s)" % [product, product.ord.to_s(16)] if price.nil?
   return price
 end
