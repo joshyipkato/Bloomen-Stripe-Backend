@@ -90,7 +90,7 @@ def attach_customer_test_cards
       card: {
         number: cc_number,
         exp_month: 8,
-        exp_year: 2022,
+        exp_year: 2025,
         cvc: '123',
       },
     })
@@ -235,7 +235,6 @@ post '/create_payment_intent' do
       receipt_email: payload[:email_address],
       
       :metadata => {
-        :order_id => '5278735C-1F40-407D-933A-286E463E72D8',
       }.merge(payload[:metadata] || {}),
     )
   rescue Stripe::StripeError => e
