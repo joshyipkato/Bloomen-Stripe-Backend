@@ -214,6 +214,8 @@ post '/check_promo' do
     if request.content_type != nil and request.content_type.include? 'application/json' and params.empty?
       payload = Sinatra::IndifferentHash[JSON.parse(request.body.read)]
   end
+
+  log_info(payload[:code])
   
   begin
   promotion_codes = Stripe::PromotionCode.list({code: payload[:code],})
@@ -223,6 +225,7 @@ post '/check_promo' do
     return log_info("Error checking Promo Code: #{e.message}")
   end
 
+  log_info(promotion_codes)
   log_info("Promo code validation completed")
   status 200
   return {
