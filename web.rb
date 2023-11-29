@@ -225,9 +225,7 @@ post '/check_promo' do
 
   log_info("Promo code validation completed")
   status 200
-  return {
-    :url => promotion_codes.data[0].url
-  }.to_json
+  promotion_codes.to_json
 
 end
 
