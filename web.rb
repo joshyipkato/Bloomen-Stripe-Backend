@@ -214,7 +214,8 @@ post '/check_promo' do
     if request.content_type != nil and request.content_type.include? 'application/json' and params.empty?
       payload = Sinatra::IndifferentHash[JSON.parse(request.body.read)]
   end
-
+  
+  begin
   promotion_codes = Stripe::PromotionCode.list({code: payload[:code],})
 
   rescue Stripe::StripeError => e
@@ -228,7 +229,8 @@ post '/check_promo' do
     :promotion_code_id => promotion_codes.data[0].id
   }.to_json
 
-  end
+end
+
 
 
 # ==== PaymentIntent Automatic Confirmation
