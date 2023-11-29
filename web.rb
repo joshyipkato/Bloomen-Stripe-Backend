@@ -22,6 +22,7 @@ get '/' do
   return log_info("Great, your backend is set up. Now you can configure the Stripe example apps to point here.")
 end
 
+
 post '/ephemeral_keys' do
   authenticate!
   
@@ -205,6 +206,30 @@ post '/create_setup_intent' do
     :status => setup_intent.status
   }.to_json
 end
+
+
+post '/check_promo' do
+  payload = params
+  
+    if request.content_type != nil and request.content_type.include? 'application/json' and params.empty?
+      payload = Sinatra::IndifferentHash[JSON.parse(request.body.read)]
+  end
+
+  promotion_codes = Stripe::PromotionCode.list({code: payload[:code],})
+
+  rescue Stripe::StripeError => e
+    status 402
+    return log_info("Error checking Promo Code: #{e.message}")
+  end
+
+  log_info("Promo code validation completed")
+  status 200
+  return {
+    :promotion_code_id => promotion_codes.data[0].id
+  }.to_json
+
+  end
+
 
 # ==== PaymentIntent Automatic Confirmation
 # See https://stripe.com/docs/payments/payment-intents/ios
