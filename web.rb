@@ -245,7 +245,7 @@ post '/create_payment_intent' do
   end
 
   # Calculate how much to charge the customer
-  amount = calculate_price(payload[:products], payload[:shipping])
+  amount = calculate_price(payload[:products], payload[:shipping], payload[:percent_off])
 
   begin
     payment_intent = Stripe::PaymentIntent.create(
@@ -296,7 +296,7 @@ post '/confirm_payment_intent' do
       payment_intent = Stripe::PaymentIntent.confirm(payload[:payment_intent_id], {:use_stripe_sdk => true})
     elsif payload[:payment_method_id]
       # Calculate how much to charge the customer
-      amount = calculate_price(payload[:products], payload[:shipping])
+      amount = calculate_price(payload[:products], payload[:shipping], payload[:percent_off])
 
       # Create and confirm the PaymentIntent
       payment_intent = Stripe::PaymentIntent.create(
@@ -434,7 +434,7 @@ def price_lookup(product)
   return price
 end
 
-def calculate_price(products, shipping)
+def calculate_price(products, shipping, percent_off)
   amount = 0  # Default amount.
 
   if products
@@ -452,6 +452,10 @@ def calculate_price(products, shipping)
     when "free"
       amount = amount + 0
     end
+  end
+
+  if percent_off
+    amount = amount - amount * percent_off / 100
   end
 
   return amount
