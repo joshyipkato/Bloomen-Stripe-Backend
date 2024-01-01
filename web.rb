@@ -7,10 +7,10 @@ require 'encrypted_cookie'
 $stdout.sync = true # Get puts to show up in heroku logs
 
 Dotenv.load
-Stripe.api_key = ENV['STRIPE_TEST_SECRET_KEY']
+Stripe.api_key = ENV['STRIPE_PROD_SECRET_KEY']
 
 use Rack::Session::EncryptedCookie,
-  :secret => 'replace_me_with_a_real_secret_key' # Actually use something secret here!
+  :secret => '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' # Actually use something secret here!
 
 def log_info(message)
   puts "\n" + message + "\n\n"
