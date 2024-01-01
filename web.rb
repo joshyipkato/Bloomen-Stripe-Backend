@@ -405,6 +405,26 @@ post '/authenticate_stripe_user' do
     @customer = Stripe::Customer.retrieve(payload[:stripeID])
     session[:customer_id] = @customer.id
   end
+
+  # ==== START TO CREATE NEW CUSTOMER ===
+
+  if session[:customer_id] = nil
+    default_customer_id = ENV['DEFAULT_CUSTOMER_ID']
+    if default_customer_id
+      @customer = Stripe::Customer.retrieve(default_customer_id)
+    else
+      begin
+        @customer = create_customer()
+
+        if (Stripe.api_key.start_with?('sk_test_'))
+          # only attach test cards in testmode
+          attach_customer_test_cards()
+        end
+      rescue Stripe::InvalidRequestError
+      end
+    end
+    session[:customer_id] = @customer.id
+  end
   
   content_type :json
   status 200
